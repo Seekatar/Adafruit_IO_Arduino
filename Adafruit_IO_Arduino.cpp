@@ -118,41 +118,43 @@ bool FeedData::doubleValue(double* value) {
     return (*_value != 0 && *endptr == 0);
 }
 
-// Buffer to store values converted from numbers to strings before sending to IO.
-static char _converted[FEEDDATA_LENGTH];
-
-bool Adafruit_IO_Feed::send(int value) {
+bool Adafruit_IO_Feed::send(int value, const char* latitude, const char* longitude,
+                            const char* elevation) {
     // Convert int to string, then send the value (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     itoa(value, _converted, 10);
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
 }
 
-bool Adafruit_IO_Feed::send(unsigned int value) {
+bool Adafruit_IO_Feed::send(unsigned int value, const char* latitude,
+                            const char* longitude, const char* elevation) {
     // Convert uint to string, then send the value (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     utoa(value, _converted, 10);
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
 }
 
-bool Adafruit_IO_Feed::send(long value) {
+bool Adafruit_IO_Feed::send(long value, const char* latitude, const char* longitude,
+                            const char* elevation) {
     // Convert long to string, then send the value (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     ltoa(value, _converted, 10);
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
 }
 
-bool Adafruit_IO_Feed::send(unsigned long value) {
+bool Adafruit_IO_Feed::send(unsigned long value, const char* latitude,
+                            const char* longitude, const char* elevation) {
     // Convert ulong to string, then send the value (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     ultoa(value, _converted, 10);
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
 }
 
-bool Adafruit_IO_Feed::send(float value) {
+bool Adafruit_IO_Feed::send(float value, const char* latitude, 
+                            const char* longitude, const char* elevation) {
     // Convert float to string using scientific notation, then send the value 
     // (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     #if defined(ARDUINO_ARCH_AVR)
         // Use avrlibc dtostre function on AVR platforms.
         dtostre(value, _converted, 10, 0);
@@ -160,13 +162,14 @@ bool Adafruit_IO_Feed::send(float value) {
         // Otherwise fall back to snprintf on other platforms.
         snprintf(_converted, sizeof(_converted)-1, "%f", value);
     #endif
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
 }
 
-bool Adafruit_IO_Feed::send(double value) {
+bool Adafruit_IO_Feed::send(double value, const char* latitude, 
+                            const char* longitude, const char* elevation) {
     // Convert double to string using scientific notation, then send the value 
     // (being careful not to quote it).
-    memset(_converted, 0, sizeof(_converted));
+    char _converted[FEEDDATA_LENGTH];
     #if defined(ARDUINO_ARCH_AVR)
         // Use avrlibc dtostre function on AVR platforms.
         dtostre(value, _converted, 10, 0);
@@ -174,5 +177,80 @@ bool Adafruit_IO_Feed::send(double value) {
         // Otherwise fall back to snprintf on other platforms.
         snprintf(_converted, sizeof(_converted)-1, "%f", value);
     #endif
-    return _adapter->send(_name, _converted, _key, false);
+    return _adapter->send(_name, _converted, false, _key, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(const char* value, float latitude, float longitude, float elevation) {
+    // Convert int to string, then send the value (being careful not to quote it).
+    char _lat[12];
+    char _lon[12];
+    char _ele[12];
+    #if defined(ARDUINO_ARCH_AVR)
+        // Use avrlibc dtostrf function on AVR platforms.
+        dtostrf(latitude,  0, 6, _lat);
+        dtostrf(longitude, 0, 6, _lon);
+        dtostrf(elevation, 0, 6, _ele);
+    #else
+        // Otherwise fall back to snprintf on other platforms.
+        snprintf(_lat, sizeof(_lat)-1, "%f", latitude);
+        snprintf(_lon, sizeof(_lon)-1, "%f", longitude);
+        snprintf(_ele, sizeof(_ele)-1, "%f", elevation);
+    #endif    
+    return send(value, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(int value, float latitude, float longitude, float elevation) {
+    // Convert int to string, then send the value (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    itoa(value, _converted, 10);
+    return send(_converted, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(unsigned int value, float latitude, float longitude, float elevation) {
+    // Convert uint to string, then send the value (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    utoa(value, _converted, 10);
+    return send(_converted, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(long value, float latitude, float longitude, float elevation) {
+    // Convert long to string, then send the value (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    ltoa(value, _converted, 10);
+    return send(_converted, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(unsigned long value, float latitude, float longitude, float elevation) {
+    // Convert ulong to string, then send the value (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    ultoa(value, _converted, 10);
+    return send(_converted, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(float value, float latitude, float longitude, float elevation) {
+    // Convert float to string using scientific notation, then send the value 
+    // (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    #if defined(ARDUINO_ARCH_AVR)
+        // Use avrlibc dtostre function on AVR platforms.
+        dtostre(value, _converted, 10, 0);
+    #else
+        // Otherwise fall back to snprintf on other platforms.
+        snprintf(_converted, sizeof(_converted)-1, "%f", value);
+    #endif
+    return send(_converted, latitude, longitude, elevation);
+}
+
+bool Adafruit_IO_Feed::send(double value, float latitude, float longitude, float elevation) {
+    // Convert double to string using scientific notation, then send the value 
+    // (being careful not to quote it).
+    char _converted[FEEDDATA_LENGTH];
+    #if defined(ARDUINO_ARCH_AVR)
+        // Use avrlibc dtostre function on AVR platforms.
+        dtostre(value, _converted, 10, 0);
+    #else
+        // Otherwise fall back to snprintf on other platforms.
+        snprintf(_converted, sizeof(_converted)-1, "%f", value);
+    #endif
+    return send(_converted, latitude, longitude, elevation);
 }

@@ -47,8 +47,9 @@ public:
         _fona.enableGPRS(true);    
     }
 
-    virtual bool send(const char* feed, const char* value, const char* key, 
-                      bool quoted) {
+    virtual bool send(const char* feed, const char* value, bool quoted,
+                      const char* key, const char* latitude, const char* longitude,
+                      const char* elevation) {
         // Make HTTP POST to send feed data as JSON object.
 
         // Make sure GPRS is connected.
@@ -74,27 +75,47 @@ public:
             return false;
         }
 
-        // Send HTTP POST data.
+        // Compute size of data.
+        uint16_t len = 10 + strlen(value);
         if (quoted) {
-            // Handle if the value should be surrounded in quotes.
-            if (!_fona.HTTP_data(12+strlen(value), 10000)) {
-                DEBUG_PRINTLN(F("HTTP POST data failed!"));
-                return false;
-            }
-            _fona.print(F("{\"value\":\""));
-            _fona.print(value);
-            _fona.print(F("\"}"));
+            len += 2;
         }
-        else {
-            // Handle if the value should not be in quotes.
-            if (!_fona.HTTP_data(10+strlen(value), 10000)) {
-                DEBUG_PRINTLN(F("HTTP POST data failed!"));
-                return false;
-            }
-            _fona.print(F("{\"value\":"));
-            _fona.print(value);
-            _fona.print(F("}"));
+        if (latitude != NULL) {
+            len += 7 + strlen(latitude);
         }
+        if (longitude != NULL) {
+            len += 7 + strlen(longitude);
+        }
+        if (elevation != NULL) {
+            len += 7 + strlen(elevation);
+        }
+
+        // Send data.
+        if (!_fona.HTTP_data(len, 10000)) {
+            DEBUG_PRINTLN(F("HTTP POST data failed!"));
+            return false;
+        }
+        _fona.print(F("{\"value\":"));
+        if (quoted) {
+            _fona.print('"');
+        }
+        _fona.print(value);
+        if (quoted) {
+            _fona.print('"');
+        }
+        if (latitude != NULL) {
+            _fona.print(F(",\"lat\":"));
+            _fona.print(latitude);
+        }
+        if (longitude != NULL) {
+            _fona.print(F(",\"lon\":"));
+            _fona.print(longitude);
+        }
+        if (elevation != NULL) {
+            _fona.print(F(",\"ele\":"));
+            _fona.print(elevation);
+        }
+        _fona.print(F("}"));
 
         // Verify OK response.
         if (!_fona.expectReply(F("OK"))) {

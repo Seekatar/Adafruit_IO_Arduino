@@ -53,8 +53,9 @@ public:
 
     bool begin() {}  // Nothing to do, no initialization required.
 
-    virtual bool send(const char* feed, const char* value, const char* key, 
-                      bool quoted) {
+    virtual bool send(const char* feed, const char* value, bool quoted,
+                      const char* key, const char* latitude, const char* longitude,
+                      const char* elevation) {
         // Make HTTP POST to send feed data as JSON object.
 
         // First make sure a connection to the service is available.
@@ -67,6 +68,15 @@ public:
         uint16_t len = 10 + strlen(value);
         if (quoted) {
             len += 2;
+        }
+        if (latitude != NULL) {
+            len += 7 + strlen(latitude);
+        }
+        if (longitude != NULL) {
+            len += 7 + strlen(longitude);
+        }
+        if (elevation != NULL) {
+            len += 7 + strlen(elevation);
         }
 
         // Send HTTP POST and headers.
@@ -88,6 +98,18 @@ public:
         }
         else {
             _client.fastrprint(value);
+        }
+        if (latitude != NULL) {
+            _client.fastrprint(F(",\"lat\":"));
+            _client.fastrprint(latitude);
+        }
+        if (longitude != NULL) {
+            _client.fastrprint(F(",\"lon\":"));
+            _client.fastrprint(longitude);
+        }
+        if (elevation != NULL) {
+            _client.fastrprint(F(",\"ele\":"));
+            _client.fastrprint(elevation);
         }
         _client.write('}');
 

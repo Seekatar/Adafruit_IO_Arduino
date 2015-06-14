@@ -46,8 +46,9 @@ public:
 
     bool begin() {}  // Nothing to do, no initialization required.
 
-    virtual bool send(const char* feed, const char* value, const char* key, 
-                      bool quoted);
+    virtual bool send(const char* feed, const char* value, bool quoted,
+                      const char* key, const char* latitude, const char* longitude,
+                      const char* elevation);
 
     virtual FeedData receive(const char* feed, const char* key);
 

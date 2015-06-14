@@ -83,8 +83,9 @@ private:
 class AIOService {
 public:
     virtual ~AIOService() {}
-    virtual bool send(const char* feed, const char* value, const char* key,
-                      bool quoted) = 0;
+    virtual bool send(const char* feed, const char* value, bool quoted,
+                      const char* key, const char* latitude, const char* longitude,
+                      const char* elevation) = 0;
     virtual FeedData receive(const char* feed, const char* key) = 0;
 };
 
@@ -97,15 +98,30 @@ public:
         _name(name), _key(key), _adapter(adapter)
     {}
     
-    bool send(const char* value) { 
-        return _adapter->send(_name, value, _key, true);
+    bool send(const char* value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL) { 
+        return _adapter->send(_name, value, true, _key, latitude, longitude, elevation);
     }
-    bool send(int value);
-    bool send(unsigned int value);
-    bool send(long value);
-    bool send(unsigned long value);
-    bool send(float value);
-    bool send(double value);
+    bool send(int value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+    bool send(unsigned int value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+    bool send(long value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+    bool send(unsigned long value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+    bool send(float value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+    bool send(double value, const char* latitude=NULL, const char* longitude=NULL,
+              const char* elevation=NULL);
+
+    bool send(const char* value, float latitude, float longitude, float elevation);
+    bool send(int value, float latitude, float longitude, float elevation);
+    bool send(unsigned int value, float latitude, float longitude, float elevation);
+    bool send(long value, float latitude, float longitude, float elevation);
+    bool send(unsigned long value, float latitude, float longitude, float elevation);
+    bool send(float value, float latitude, float longitude, float elevation);
+    bool send(double value, float latitude, float longitude, float elevation);
 
     FeedData receive() {
         return _adapter->receive(_name, _key);
@@ -115,6 +131,7 @@ private:
     const char* _name;
     const char* _key;
     AIOService* _adapter;
+
 };
 
 

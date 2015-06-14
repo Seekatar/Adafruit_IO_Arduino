@@ -22,8 +22,9 @@
 // SOFTWARE.
 #include "Adafruit_IO_Client.h"
 
-bool Adafruit_IO_Client::send(const char* feed, const char* value, 
-                              const char* key, bool quoted) {
+bool Adafruit_IO_Client::send(const char* feed, const char* value, bool quoted,
+                              const char* key, const char* latitude,
+                              const char* longitude, const char* elevation) {
     // Make HTTP POST to send feed data as JSON object.
 
     // First make sure a connection to the service is available.
@@ -36,6 +37,15 @@ bool Adafruit_IO_Client::send(const char* feed, const char* value,
     uint16_t len = 10 + strlen(value);
     if (quoted) {
         len += 2;
+    }
+    if (latitude != NULL) {
+        len += 7 + strlen(latitude);
+    }
+    if (longitude != NULL) {
+        len += 7 + strlen(longitude);
+    }
+    if (elevation != NULL) {
+        len += 7 + strlen(elevation);
     }
 
     // Send HTTP POST and headers.
@@ -57,6 +67,18 @@ bool Adafruit_IO_Client::send(const char* feed, const char* value,
     }
     else {
         _client.print(value);
+    }
+    if (latitude != NULL) {
+        _client.print(F(",\"lat\":"));
+        _client.print(latitude);
+    }
+    if (longitude != NULL) {
+        _client.print(F(",\"lon\":"));
+        _client.print(longitude);
+    }
+    if (elevation != NULL) {
+        _client.print(F(",\"ele\":"));
+        _client.print(elevation);
     }
     _client.print('}');
 
